@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Forex Trading System</title>
+<link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">
+      <span class="dot" id="connDot"></span>
+      Forex Trading System
+      <span class="status-pill" id="modePill">--</span>
+    </div>
+    <div class="controls">
+      <button id="btnStart">Start</button>
+      <button id="btnPause">Pause</button>
+      <button class="danger" id="btnKill">Kill Switch</button>
+      <button class="danger" id="btnCloseAll">Close All</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button data-tab="dashboard" class="active">Dashboard</button>
+    <button data-tab="market">Market Monitor</button>
+    <button data-tab="setup">Trade Setup</button>
+    <button data-tab="risk">Risk Monitor</button>
+    <button data-tab="backtest">Backtesting</button>
+    <button data-tab="settings">Settings</button>
+  </nav>
+
+  <main>
+    <section id="tab-dashboard" class="tab-panel active">
+      <div class="grid cols-4">
+        <div class="card"><h3>Balance</h3><div class="metric-value" id="dBalance">--</div></div>
+        <div class="card"><h3>Equity</h3><div class="metric-value" id="dEquity">--</div></div>
+        <div class="card"><h3>Floating P/L</h3><div class="metric-value" id="dFloating">--</div></div>
+        <div class="card"><h3>Daily P/L</h3><div class="metric-value" id="dDaily">--</div></div>
+      </div>
+      <div class="grid cols-4" style="margin-top:14px;">
+        <div class="card"><h3>Weekly P/L</h3><div class="metric-value" id="dWeekly">--</div></div>
+        <div class="card"><h3>Risk / Trade</h3><div class="metric-value" id="dRisk">--</div></div>
+        <div class="card"><h3>Broker</h3><div class="metric-value" id="dBroker" style="font-size:15px;">--</div></div>
+        <div class="card"><h3>Strategy Status</h3><div class="metric-value" id="dStrategyStatus" style="font-size:15px;">--</div></div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <h3>Open Positions</h3>
+        <table id="dPositionsTable"><thead><tr><th>Symbol</th><th>Dir</th><th>Volume</th><th>Entry</th><th>SL</th><th>TP</th><th>P/L</th><th>Opened</th></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+
+    <section id="tab-market" class="tab-panel">
+      <div class="card">
+        <h3>Market Monitor</h3>
+        <table id="marketTable">
+          <thead><tr><th>Symbol</th><th>Price</th><th>Spread (pts)</th><th>Structure</th><th>Liquidity</th><th>Setup</th><th>Entry</th><th>SL</th><th>TP</th><th>R:R</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="tab-setup" class="tab-panel">
+      <div class="card"><h3>Why is (or isn't) each symbol trading?</h3><div id="setupDetails"></div></div>
+    </section>
+
+    <section id="tab-risk" class="tab-panel">
+      <div class="grid cols-3">
+        <div class="card"><h3>Account</h3>
+          <div class="metric-sub">Balance</div><div class="metric-value" id="rBalance">--</div>
+          <div class="metric-sub" style="margin-top:8px;">Equity</div><div class="metric-value" id="rEquity">--</div>
+        </div>
+        <div class="card"><h3>Loss Limits</h3>
+          <div class="metric-sub">Daily P/L / limit</div><div class="metric-value" id="rDaily">--</div>
+          <div class="metric-sub" style="margin-top:8px;">Weekly P/L / limit</div><div class="metric-value" id="rWeekly">--</div>
+        </div>
+        <div class="card"><h3>Trade Limits</h3>
+          <div class="metric-sub">Trades today / max</div><div class="metric-value" id="rTrades">--</div>
+          <div class="metric-sub" style="margin-top:8px;">Open positions / max</div><div class="metric-value" id="rPositions">--</div>
+          <div class="metric-sub" style="margin-top:8px;">Consecutive losses / pause limit</div><div class="metric-value" id="rConsec">--</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <h3>Account Viability (Requirement 6)</h3>
+        <table id="viabilityTable"><thead><tr><th>Symbol</th><th>Tradable</th><th>Reason</th><th>Est. Minimum Practical Account</th></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+
+    <section id="tab-backtest" class="tab-panel">
+      <div class="card">
+        <h3>Run Backtest</h3>
+        <div class="form-row">
+          <div><label>Symbol</label><select id="btSymbol"></select></div>
+          <div><label>Starting Balance</label><input type="number" id="btBalance" value="1000" /></div>
+          <div><label>Risk % per trade</label><input type="number" step="0.1" id="btRisk" value="0.5" /></div>
+          <div><label>Bar count (demo data)</label><input type="number" id="btBars" value="20000" /></div>
+        </div>
+        <div class="form-row" style="margin-top:8px;">
+          <div><label><input type="checkbox" id="btSweep" /> Small-account sweep</label></div>
+          <div><label><input type="checkbox" id="btWF" /> Walk-forward split</label></div>
+          <div><label><input type="checkbox" id="btMC" /> Monte Carlo</label></div>
+        </div>
+        <p class="metric-sub" style="margin-top:10px;">No CSV supplied -&gt; uses clearly-labeled synthetic demo data (see BACKTESTING.md). Export real MT5 history for meaningful results.</p>
+        <button class="btn" id="btnRunBacktest" style="margin-top:8px;">Run Backtest</button>
+      </div>
+      <div id="backtestResults"></div>
+    </section>
+
+    <section id="tab-settings" class="tab-panel">
+      <div class="card">
+        <h3>Trading Mode</h3>
+        <div class="form-row">
+          <div><label>Mode</label>
+            <select id="sMode"><option value="BACKTEST">BACKTEST</option><option value="PAPER">PAPER</option><option value="LIVE">LIVE</option></select>
+          </div>
+          <div><label>Live trading confirmed?</label>
+            <select id="sLiveConfirm"><option value="false">No</option><option value="true">Yes, I understand the risk</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <h3>Risk</h3>
+        <div class="form-row">
+          <div><label>Risk per trade %</label><input type="number" step="0.05" id="sRiskPct" /></div>
+          <div><label>Max daily loss %</label><input type="number" step="0.1" id="sMaxDaily" /></div>
+          <div><label>Max weekly loss %</label><input type="number" step="0.1" id="sMaxWeekly" /></div>
+          <div><label>Max trades/day</label><input type="number" id="sMaxTrades" /></div>
+          <div><label>Max concurrent positions</label><input type="number" id="sMaxPositions" /></div>
+          <div><label>Max spread (points)</label><input type="number" id="sMaxSpread" /></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <h3>Bridge</h3>
+        <div class="form-row">
+          <div><label>Bridge kind</label><select id="sBridgeKind"><option value="mock">Mock (no MT5)</option><option value="mt5_file">MT5 File Bridge</option></select></div>
+          <div><label>MT5 Common\Files\ForexTradingSystem path (optional override)</label><input type="text" id="sBridgeDir" /></div>
+        </div>
+        <button class="btn secondary" id="btnTestConnection" style="margin-top:10px;">Test Connection</button>
+        <span id="testConnResult" class="metric-sub"></span>
+      </div>
+      <button class="btn" id="btnSaveSettings" style="margin-top:14px;">Save Settings</button>
+    </section>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<div class="wizard-overlay" id="wizardOverlay" style="display:none;">
+  <div class="wizard-box">
+    <div class="wizard-steps">
+      <span id="wstep1"></span><span id="wstep2"></span><span id="wstep3"></span><span id="wstep4"></span>
+    </div>
+    <div id="wizardContent"></div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

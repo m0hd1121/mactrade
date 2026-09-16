@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Entitlements for an optional hardened-runtime codesign + notarization pass
+  (only needed if you plan to distribute the .dmg beyond your own Mac --
+  see INSTALLATION.md). Not required for local personal use; ad-hoc signing
+  (codesign --sign -) is enough to satisfy Gatekeeper on the machine that
+  built the app.
+
+  Usage:
+    codesign --force --deep --options runtime \
+      --entitlements installer/entitlements.plist \
+      --sign "Developer ID Application: Your Name (TEAMID)" \
+      "installer/dist/Forex Trading System.app"
+-->
+<plist version="1.0">
+<dict>
+  <!-- loopback HTTP to the app's own bundled server -->
+  <key>com.apple.security.network.client</key>
+  <true/>
+  <key>com.apple.security.network.server</key>
+  <true/>
+  <!-- reads/writes only its own Application Support folder and MT5's shared Common/Files folder -->
+  <key>com.apple.security.files.user-selected.read-write</key>
+  <true/>
+  <key>com.apple.security.cs.allow-jit</key>
+  <true/>
+</dict>
+</plist>
