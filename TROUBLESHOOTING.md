@@ -6,14 +6,12 @@
 - Confirm `ForexBridgeEA` is attached to a chart with a smiling-face icon
   (not a sad face / red X) -- a sad face means Algo Trading is disabled
   either globally (toolbar toggle) or for that EA (Common tab checkbox).
-- Check for `Common/Files/ForexTradingSystem/heartbeat.json` in your MT5
-  data folder (File -> Open Data Folder in MT5, then
-  `Common/Files/ForexTradingSystem/`... actually the *shared* Common folder
-  is one level up from a specific terminal's data folder -- MT5 shows it at
-  File -> Open Data Folder -> "Common" in the sidebar). Its `time` field
-  should be within the last ~15 seconds; `FileBridge.is_connected()` treats
-  anything older as stale on purpose (Requirement 11: never trade on
-  unverifiable state).
+- Check for `MQL5/Files/ForexTradingSystem/heartbeat.json` inside your MT5
+  terminal's own data folder (in MT5: **File -> Open Data Folder** opens
+  straight to it; the bridge folder is under `MQL5/Files/`, not MT5's
+  separate "Common" folder). Its `time` field should be within the last
+  ~15 seconds; `FileBridge.is_connected()` treats anything older as stale
+  on purpose (Requirement 11: never trade on unverifiable state).
 - Check the Experts log tab in MT5 for compile/runtime errors from the EA.
 
 ## "No fresh heartbeat from the MT5 bridge EA yet"
@@ -41,6 +39,25 @@ every rejection is logged with one (`risk_events` table / `GET /api/setups`
 - **Kill switch / daily or weekly loss limit / max trades per day / max
   consecutive losses** -- all working as designed; check the Risk Monitor
   tab for which one is currently active.
+
+## `install_mt5_bridge.sh` says "No MQL5/Experts folder found"
+
+This means MT5's Wine-style container exists but its subpath layout doesn't
+match what the script searched (it looks up to 8 folders deep under
+`~/Library/Application Support/net.metaquotes.wine.metatrader5/drive_c`,
+which covers both "portable" and standard installs, but MT5 has changed
+this layout before and may again). Find it directly and copy manually:
+
+```bash
+find ~/Library/Application\ Support/net.metaquotes.wine.metatrader5 -iname "MQL5" -type d
+```
+
+That prints the real `.../MQL5` folder; copy
+`mt5_bridge/ForexBridgeEA.mq5` into `<that path>/Experts/` and
+`mt5_bridge/Include/JsonBridge.mqh` into `<that path>/Include/`. If you hit
+this, it's also worth telling us the path it found so
+`engine/mt5_paths.py`'s search can be widened to cover it automatically
+next time.
 
 ## The app won't build (`installer/build_app.sh` fails)
 

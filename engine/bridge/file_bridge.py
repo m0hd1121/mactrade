@@ -33,19 +33,26 @@ from engine.types import (
 logger = get_logger("bridge.file")
 
 
-def default_mt5_common_files_dir() -> Path:
-    """Best-effort default location of MT5's shared Common\\Files folder on macOS.
+def default_mt5_files_dir() -> Path:
+    """Best-effort default location of the MT5 terminal's own MQL5/Files
+    folder on macOS.
 
     Native MT5 for Mac stores its data under
     ~/Library/Application Support/net.metaquotes.wine.metatrader5/drive_c/...
-    (it ships its own lightweight Wine-like runtime bundle solely to host the
-    Windows-format terminal, distinct from a user-installed Wine/CrossOver
-    setup). The exact broker-specific terminal ID varies, so
-    InstalledMT5Detector (see scripts/inspect_environment.py) scans for it;
-    this function only returns the conventional root to scan under.
+    (it ships its own lightweight bundle solely to host the Windows-format
+    terminal, distinct from a user-installed Wine/CrossOver setup) -- but the
+    exact subpath from there varies by install (portable vs. standard), so
+    this delegates to engine.mt5_paths, which searches for the real
+    <terminal>/MQL5 folder rather than assuming a fixed layout. Falls back to
+    the most common ("portable install") layout as a last-resort guess if
+    nothing is found yet (e.g. MT5 hasn't been launched once to create its
+    data folder), purely so the app has something to show before that.
     """
-    return Path.home() / "Library" / "Application Support" / "net.metaquotes.wine.metatrader5" / \
-        "drive_c" / "users" / "user" / "AppData" / "Roaming" / "MetaQuotes" / "Terminal" / "Common" / "Files"
+    from engine.mt5_paths import WINE_CONTAINER_ROOT, find_mt5_files_dir
+    found = find_mt5_files_dir()
+    if found is not None:
+        return found
+    return WINE_CONTAINER_ROOT / "Program Files" / "MetaTrader 5" / "MQL5" / "Files"
 
 
 class FileBridge(BrokerBridge):

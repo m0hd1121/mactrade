@@ -36,20 +36,25 @@ yourself at any time.
 
 You should see a smiling-face icon in the chart's corner (EA running) and,
 within a couple of seconds, a `heartbeat.json` file appear under
-`Common\Files\ForexTradingSystem\` in your MT5 data folder.
+`MQL5\Files\ForexTradingSystem\` inside that terminal's own data folder
+(File -> Open Data Folder in MT5 opens straight to it).
 
 ## 4. Point the app at it
 
 In the app's Settings tab: Bridge kind = **MT5 File Bridge**, leave the
 path override blank unless you have multiple MT5 installs (in which case
-set it to the exact `.../Common/Files/ForexTradingSystem` path). Click
-**Test Connection** -- it should report your broker, login, and balance.
+set it to the exact `.../MQL5/Files/ForexTradingSystem` path for the
+terminal you're using). Click **Test Connection** -- it should report your
+broker, login, and balance. Auto-detection searches for this path rather
+than assuming a fixed layout, since it varies between a "portable" MT5
+install and a standard one (see `engine/mt5_paths.py`); if it can't find
+yours, the manual override handles it.
 
 ## 5. What the EA actually does (and doesn't)
 
 - Writes account info, per-symbol specs/quotes, open positions (only ones
   it opened -- filtered by `InpMagicNumber`), and newly-closed M5 bars to
-  the shared `Common/Files/ForexTradingSystem/` folder every
+  its own terminal-local `MQL5/Files/ForexTradingSystem/` folder every
   `InpTimerSeconds` (default 1s).
 - Polls a `commands/` folder for order/close requests from the Python
   engine and writes matching results to `responses/`.

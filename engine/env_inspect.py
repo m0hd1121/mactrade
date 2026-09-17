@@ -11,7 +11,7 @@ import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from engine.bridge.file_bridge import default_mt5_common_files_dir
+from engine.bridge.file_bridge import default_mt5_files_dir
 from engine.bridge.protocol import HEARTBEAT_FILE
 
 
@@ -73,7 +73,7 @@ def inspect_environment() -> EnvironmentReport:
 
     mt5_paths = _find_mt5_app() if is_macos else []
 
-    bridge_dir = default_mt5_common_files_dir()
+    bridge_dir = default_mt5_files_dir()
     heartbeat_found = (bridge_dir / "ForexTradingSystem" / HEARTBEAT_FILE).exists()
 
     if is_macos and not mt5_paths:

@@ -15,11 +15,16 @@ if [[ "$(uname)" != "Darwin" ]]; then
 fi
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TERMINAL_ROOT="$HOME/Library/Application Support/net.metaquotes.wine.metatrader5/drive_c/users/user/AppData/Roaming/MetaQuotes/Terminal"
+WINE_ROOT="$HOME/Library/Application Support/net.metaquotes.wine.metatrader5/drive_c"
 
-if [[ ! -d "$TERMINAL_ROOT" ]]; then
-  echo "Could not find a MetaTrader 5 data folder at:"
-  echo "  $TERMINAL_ROOT"
+# The subpath from WINE_ROOT to a given terminal's own MQL5/ folder varies by
+# install -- a "portable" install keeps it at ".../Program Files/MetaTrader 5/
+# MQL5", a standard install uses the classic per-terminal
+# ".../users/*/AppData/Roaming/MetaQuotes/Terminal/<hash>/MQL5" layout. Search
+# broadly instead of assuming either.
+if [[ ! -d "$WINE_ROOT" ]]; then
+  echo "Could not find a MetaTrader 5 data folder under:"
+  echo "  $WINE_ROOT"
   echo ""
   echo "Open MetaTrader 5 at least once, then in the app: File -> Open Data Folder,"
   echo "and manually copy:"
@@ -37,7 +42,7 @@ while IFS= read -r experts_dir; do
   cp "$ROOT_DIR/mt5_bridge/ForexBridgeEA.mq5" "$experts_dir/"
   cp "$ROOT_DIR/mt5_bridge/Include/JsonBridge.mqh" "$include_dir/"
   echo "Installed bridge EA into: $experts_dir"
-done < <(find "$TERMINAL_ROOT" -maxdepth 3 -type d -path "*/MQL5/Experts")
+done < <(find "$WINE_ROOT" -maxdepth 8 -type d -path "*/MQL5/Experts")
 
 if [[ "$found" -eq 0 ]]; then
   echo "No MQL5/Experts folder found under any terminal instance yet."

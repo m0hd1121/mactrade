@@ -24,7 +24,7 @@ from engine.backtest.monte_carlo import run_monte_carlo
 from engine.backtest.small_account_sweep import DEFAULT_BALANCE_LADDER, run_small_account_sweep
 from engine.backtest.walk_forward import run_walk_forward
 from engine.bridge.base import BridgeConnectionError
-from engine.bridge.file_bridge import FileBridge, default_mt5_common_files_dir
+from engine.bridge.file_bridge import FileBridge, default_mt5_files_dir
 from engine.bridge.mock_bridge import MockBridge
 from engine.config import AppConfig, app_data_dir
 from engine.db.database import Database
@@ -53,7 +53,7 @@ class AppState:
 
     def _build_bridge(self):
         if self.config.bridge.kind == "mt5_file":
-            files_dir = Path(self.config.bridge.files_dir) if self.config.bridge.files_dir else (default_mt5_common_files_dir() / "ForexTradingSystem")
+            files_dir = Path(self.config.bridge.files_dir) if self.config.bridge.files_dir else (default_mt5_files_dir() / "ForexTradingSystem")
             return FileBridge(files_dir, poll_interval=self.config.bridge.poll_interval_seconds, command_timeout=self.config.bridge.command_timeout_seconds)
         return MockBridge(starting_balance=500.0)
 

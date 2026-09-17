@@ -13,7 +13,9 @@
 
 #define BRIDGE_ROOT "ForexTradingSystem"
 
-//--- build a path under the shared Common\Files\ForexTradingSystem folder
+//--- build a path under this terminal's own MQL5\Files\ForexTradingSystem
+//--- folder (terminal-local, deliberately NOT the shared Common\Files folder
+//--- -- see the note in engine/bridge/protocol.py)
 string BridgePath(const string relative)
 {
    return BRIDGE_ROOT + "\\" + relative;
@@ -22,17 +24,17 @@ string BridgePath(const string relative)
 //--- ensure the bridge folder tree exists (call once from OnInit)
 void BridgeEnsureFolders()
 {
-   FolderCreate(BRIDGE_ROOT, FILE_COMMON);
-   FolderCreate(BridgePath("symbols"), FILE_COMMON);
-   FolderCreate(BridgePath("bars"), FILE_COMMON);
-   FolderCreate(BridgePath("commands"), FILE_COMMON);
-   FolderCreate(BridgePath("responses"), FILE_COMMON);
+   FolderCreate(BRIDGE_ROOT);
+   FolderCreate(BridgePath("symbols"));
+   FolderCreate(BridgePath("bars"));
+   FolderCreate(BridgePath("commands"));
+   FolderCreate(BridgePath("responses"));
 }
 
-//--- write a whole text file (overwrite) into Common\Files\...
+//--- write a whole text file (overwrite) into MQL5\Files\...
 bool BridgeWriteText(const string relative, const string content)
 {
-   int handle = FileOpen(BridgePath(relative), FILE_COMMON | FILE_WRITE | FILE_TXT | FILE_ANSI);
+   int handle = FileOpen(BridgePath(relative), FILE_WRITE | FILE_TXT | FILE_ANSI);
    if(handle == INVALID_HANDLE)
       return false;
    FileWriteString(handle, content);
@@ -43,7 +45,7 @@ bool BridgeWriteText(const string relative, const string content)
 //--- append a line to a text file, creating it if needed
 bool BridgeAppendLine(const string relative, const string line)
 {
-   int handle = FileOpen(BridgePath(relative), FILE_COMMON | FILE_READ | FILE_WRITE | FILE_TXT | FILE_ANSI);
+   int handle = FileOpen(BridgePath(relative), FILE_READ | FILE_WRITE | FILE_TXT | FILE_ANSI);
    if(handle == INVALID_HANDLE)
       return false;
    FileSeek(handle, 0, SEEK_END);
@@ -55,7 +57,7 @@ bool BridgeAppendLine(const string relative, const string line)
 //--- read a whole text file, "" if missing
 string BridgeReadText(const string relative)
 {
-   int handle = FileOpen(BridgePath(relative), FILE_COMMON | FILE_READ | FILE_TXT | FILE_ANSI);
+   int handle = FileOpen(BridgePath(relative), FILE_READ | FILE_TXT | FILE_ANSI);
    if(handle == INVALID_HANDLE)
       return "";
    string out = "";

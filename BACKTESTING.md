@@ -12,8 +12,9 @@ To backtest for real, export actual MT5 history:
 1. In MT5: **View -> Symbols** (or the Strategy Tester's History Center),
    select your symbol, timeframe M5, and export to CSV. Or:
 2. Once you've run this system live/paper for a while, its own
-   `bars/<SYMBOL>_M5.csv` files (written by the bridge EA under
-   `Common/Files/ForexTradingSystem/bars/`) are already in the right format.
+   `bars/<SYMBOL>_M5.csv` files (written by the bridge EA into your MT5
+   terminal's own `MQL5/Files/ForexTradingSystem/bars/`) are already in the
+   right format.
 
 CSV columns expected: `time,open,high,low,close[,volume]` (`time` as
 epoch seconds or ISO-8601; a header row is auto-detected and skipped).

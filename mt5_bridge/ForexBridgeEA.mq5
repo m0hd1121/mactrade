@@ -9,7 +9,7 @@
 //|                                                                   |
 //|  Design constraints this file deliberately respects:            |
 //|   - No DLL imports (native macOS MT5 does not support them)     |
-//|   - No sockets/pipes -- Common\Files only                       |
+//|   - No sockets/pipes -- this terminal's own MQL5\Files only      |
 //|   - Only ever manages positions carrying MagicNumber, so it     |
 //|     never touches trades you place manually or via another EA  |
 //+------------------------------------------------------------------+
@@ -49,7 +49,7 @@ int OnInit()
 
    EventSetTimer(InpTimerSeconds);
    WriteHeartbeat();
-   Print("ForexBridgeEA initialized. Bridge folder: Common\\Files\\", BRIDGE_ROOT);
+   Print("ForexBridgeEA initialized. Bridge folder: MQL5\\Files\\", BRIDGE_ROOT);
    return(INIT_SUCCEEDED);
 }
 
@@ -212,7 +212,7 @@ void ProcessCommands()
 {
    string search = BridgePath("commands") + "\\*.json";
    string filename;
-   long handle = FileFindFirst(search, filename, FILE_COMMON);
+   long handle = FileFindFirst(search, filename);
    if(handle == INVALID_HANDLE)
       return;
 
@@ -244,7 +244,7 @@ void HandleCommandFile(const string filename)
       response = StringFormat("{\"id\": \"%s\", \"status\": \"ERROR\", \"message\": \"Unknown command type\"}", id);
 
    BridgeWriteText("responses\\" + id + ".json", response);
-   FileDelete(BridgePath("commands\\" + filename), FILE_COMMON);
+   FileDelete(BridgePath("commands\\" + filename));
 }
 
 string HandleOrderCommand(const string id, const string content)

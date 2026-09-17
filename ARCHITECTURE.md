@@ -12,8 +12,8 @@ common bridge trick, a socket-based EA, isn't reliably available on macOS
 the way it is on Windows.
 
 What MQL5 CAN always do, on every MT5 build including native macOS, is read
-and write plain files in its own `MQL5/Files/` and shared
-`MQL5/Files/Common/` folders. So that's the bridge:
+and write plain files in its own sandboxed `MQL5/Files/` folder. So that's
+the bridge:
 
 ```
  Python engine (this repo)              MT5 terminal (already installed)
@@ -26,8 +26,17 @@ and write plain files in its own `MQL5/Files/` and shared
  │  - writes commands/*.json│ ────────> │   - polls commands/, executes  │
  │  - reads responses/*.json│ <──────── │   - writes responses/*.json    │
  └─────────────────────────┘            └──────────────────────────────┘
-            both sides only touch  ~/Library/.../MetaQuotes/.../Common/Files/ForexTradingSystem/
+      both sides only touch  <MT5 terminal data folder>/MQL5/Files/ForexTradingSystem/
 ```
+
+That's the terminal's own `MQL5/Files/` folder, not MQL5's separate
+cross-terminal "Common\Files" folder (reachable via the `FILE_COMMON` flag).
+An earlier version of this bridge used Common\Files; it was dropped because
+this only ever needs to work for the one terminal the user actually trades
+through, and MT5's exact on-disk path to a terminal's own `MQL5/` folder is
+far more reliably locatable than the separate Common folder's path, which
+varies by install (see `engine/mt5_paths.py`, which searches for it rather
+than assuming a fixed layout).
 
 No Wine, no Docker, no VPS, no Windows -- explicitly ruled out by
 Requirement 20, and unnecessary given the file bridge works. The full
