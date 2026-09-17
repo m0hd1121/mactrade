@@ -94,6 +94,50 @@ sending any real order (`_attempt_trade` in
 `engine/orchestrator/live_orchestrator.py`) -- there's no path that skips
 this check.
 
+## Remote access (checking the dashboard from your phone)
+
+By default the server only binds to `127.0.0.1` -- your Mac itself -- and
+**there is no login/password on the API**. That's deliberate for a
+strictly-local tool, but it matters a lot if you open it up: every control
+on this dashboard (Start/Pause, the Kill Switch, Close All, and Settings --
+including switching to LIVE mode) is reachable to anything that can reach
+the bound address, with nothing in front of it.
+
+The recommended way to reach it from your phone without exposing it to your
+whole home network or the public internet is a personal VPN mesh like
+[Tailscale](https://tailscale.com) (free for personal use):
+
+1. Install Tailscale on your Mac (`brew install --cask tailscale` or from
+   tailscale.com) and on your phone (App Store / Play Store), and sign into
+   the same account on both.
+2. Find your Mac's Tailscale address: `tailscale ip -4` (looks like
+   `100.x.y.z`).
+3. Launch the server bound to all interfaces (so it's reachable via
+   Tailscale, and still works locally too) instead of the localhost-only
+   default:
+   ```bash
+   FTS_HOST=0.0.0.0 python -m ui.server
+   ```
+   (or, for the packaged app, launch it from Terminal instead of double-
+   clicking: `FTS_HOST=0.0.0.0 "installer/dist/Forex Trading System.app/Contents/MacOS/Forex Trading System"`
+   -- environment variables only apply when launched this way, not from
+   Finder/Spotlight.)
+4. On your phone, with Tailscale connected, open
+   `http://100.x.y.z:8765` in a browser (add it to your home screen for an
+   app-like shortcut).
+
+`FTS_HOST=0.0.0.0` also makes it reachable from anyone else on your home
+Wi-Fi, not just via Tailscale -- if you want it Tailscale-only, bind to that
+specific `100.x.y.z` address instead of `0.0.0.0` (note this also removes
+plain `127.0.0.1` access on the Mac itself, since a socket bound to one
+specific interface only accepts connections on that interface).
+
+This setup intentionally has no auth layer in front of it -- reasonable
+given Tailscale already restricts reachability to devices logged into your
+own account, but worth reconsidering (a shared passphrase gate on the API
+would be a small addition) if you ever add other people to your tailnet or
+switch to broader LAN exposure.
+
 ## Uninstalling
 
 Drag the app to the Trash. Its data lives entirely under

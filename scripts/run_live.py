@@ -10,6 +10,7 @@ order would be sent -- there is no code path that bypasses this.
 
     python3 scripts/run_live.py
 """
+import os
 import sys
 import webbrowser
 from pathlib import Path
@@ -28,7 +29,10 @@ def main():
     print(" in the Settings tab (mode=LIVE, live_trading_confirmed=true).")
     print("=" * 70)
 
-    Timer(1.5, lambda: webbrowser.open("http://127.0.0.1:8765")).start()
+    host = os.environ.get("FTS_HOST", "127.0.0.1")
+    port = os.environ.get("FTS_PORT", "8765")
+    local_host = "127.0.0.1" if host in ("0.0.0.0", "127.0.0.1") else host
+    Timer(1.5, lambda: webbrowser.open(f"http://{local_host}:{port}")).start()
     run_server()
 
 

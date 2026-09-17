@@ -8,6 +8,7 @@ pywebview window (see installer/).
 """
 from __future__ import annotations
 
+import os
 import threading
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -401,7 +402,15 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 def main():
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8765, log_level="warning")
+    # Defaults to localhost-only -- this dashboard has no login of its own
+    # (Start/Pause/Kill Switch/Close All/Settings, including switching to
+    # LIVE mode, are all reachable to anyone who can reach the bound
+    # address). Override deliberately, e.g. to your Mac's Tailscale IP for
+    # private remote/mobile access without exposing it to the public
+    # internet or your whole LAN -- see INSTALLATION.md "Remote access".
+    host = os.environ.get("FTS_HOST", "127.0.0.1")
+    port = int(os.environ.get("FTS_PORT", "8765"))
+    uvicorn.run(app, host=host, port=port, log_level="warning")
 
 
 if __name__ == "__main__":

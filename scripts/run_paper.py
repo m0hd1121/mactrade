@@ -7,6 +7,7 @@ Opens the dashboard at http://127.0.0.1:8765. Trading only starts once you
 press Start in the UI (or POST /api/safety/start); nothing trades
 automatically at launch.
 """
+import os
 import sys
 import webbrowser
 from pathlib import Path
@@ -22,7 +23,10 @@ def main():
         state.config.mode = "PAPER"
         state.save_config()
 
-    Timer(1.5, lambda: webbrowser.open("http://127.0.0.1:8765")).start()
+    host = os.environ.get("FTS_HOST", "127.0.0.1")
+    port = os.environ.get("FTS_PORT", "8765")
+    local_host = "127.0.0.1" if host in ("0.0.0.0", "127.0.0.1") else host
+    Timer(1.5, lambda: webbrowser.open(f"http://{local_host}:{port}")).start()
     run_server()
 
 

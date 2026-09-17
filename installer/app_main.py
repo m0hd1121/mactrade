@@ -9,6 +9,7 @@ instead of depending on the system browser.
 """
 from __future__ import annotations
 
+import os
 import sys
 import threading
 import time
@@ -18,8 +19,18 @@ from pathlib import Path
 # source tree next to this file; make sure it's importable either way.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-HOST = "127.0.0.1"
-PORT = 8765
+# Defaults to localhost-only -- see the same note in ui/server.py::main().
+# Override FTS_HOST (e.g. to "0.0.0.0" for LAN/Tailscale reachability) by
+# launching this binary from Terminal with the env var set; double-clicking
+# the .app from Finder always uses the default. See INSTALLATION.md
+# "Remote access".
+HOST = os.environ.get("FTS_HOST", "127.0.0.1")
+PORT = int(os.environ.get("FTS_PORT", "8765"))
+# The embedded window always talks to itself over loopback, which still
+# works even when HOST is a wildcard/external bind address -- "0.0.0.0"
+# itself isn't a connectable address, and a specific interface IP is only
+# reachable from other machines, not guaranteed the same way locally.
+_LOCAL_HOST = "127.0.0.1" if HOST in ("0.0.0.0", "127.0.0.1") else HOST
 
 
 def _run_server():
@@ -38,11 +49,11 @@ def main():
     try:
         import webview
     except ImportError:
-        print(f"pywebview not installed; open http://{HOST}:{PORT} in your browser instead.")
+        print(f"pywebview not installed; open http://{_LOCAL_HOST}:{PORT} in your browser instead.")
         while True:
             time.sleep(3600)
 
-    webview.create_window("Forex Trading System", f"http://{HOST}:{PORT}", width=1280, height=860, min_size=(1000, 700))
+    webview.create_window("Forex Trading System", f"http://{_LOCAL_HOST}:{PORT}", width=1280, height=860, min_size=(1000, 700))
     webview.start()
 
 
