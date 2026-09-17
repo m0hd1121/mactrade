@@ -14,6 +14,13 @@ from setuptools import setup
 ROOT = Path(__file__).resolve().parent.parent
 ICON = Path(__file__).parent / "icon.icns"
 
+# py2app's package scanner (modulegraph) resolves entries in OPTIONS["packages"]
+# via normal Python import machinery against sys.path. This script runs with
+# cwd=installer/ (see build_app.sh: `cd installer && python setup_py2app.py py2app`),
+# and engine/ and ui/ live one directory up, so without this they're invisible
+# to py2app and it fails with "ImportError: No module named 'engine'".
+sys.path.insert(0, str(ROOT))
+
 APP = [str(Path(__file__).parent / "app_main.py")]
 DATA_FILES = [
     ("ui/static", [str(p) for p in (ROOT / "ui" / "static").glob("*")]),
