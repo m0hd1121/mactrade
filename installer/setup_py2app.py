@@ -33,9 +33,15 @@ OPTIONS = {
     # picks its async backend with a runtime importlib.import_module() call
     # (anyio._backends._asyncio) that a static scanner can't see -- without
     # this, the packaged app 500s on its first request with
-    # "ModuleNotFoundError: No module named 'anyio._backends'". "sniffio" is
-    # anyio's own small dependency, included for the same reason.
-    "packages": ["engine", "ui", "fastapi", "starlette", "uvicorn", "pydantic", "webview", "anyio", "sniffio"],
+    # "ModuleNotFoundError: No module named 'anyio._backends'". Everything
+    # else here (including anyio's own "sniffio" dependency) is found fine by
+    # modulegraph's normal static scan and does NOT belong in this list: the
+    # "packages" option is resolved through the legacy imp.find_module() path
+    # (collect_packagedirs -> get_bootstrap), which is far pickier about a
+    # package's on-disk layout than the standard scan that already finds the
+    # other ~3000 dependencies -- listing a package here that doesn't
+    # specifically need it just adds a way for the build to fail.
+    "packages": ["engine", "ui", "fastapi", "starlette", "uvicorn", "pydantic", "webview", "anyio"],
     "includes": ["sqlite3", "email.mime.multipart", "anyio._backends._asyncio"],
     "iconfile": str(ICON) if ICON.exists() else None,
     "plist": {
