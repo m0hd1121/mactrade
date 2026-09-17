@@ -29,8 +29,14 @@ DATA_FILES = [
 
 OPTIONS = {
     "argv_emulation": False,
-    "packages": ["engine", "ui", "fastapi", "starlette", "uvicorn", "pydantic", "webview"],
-    "includes": ["sqlite3", "email.mime.multipart"],
+    # "anyio" is listed here (not left to modulegraph's static scan) because it
+    # picks its async backend with a runtime importlib.import_module() call
+    # (anyio._backends._asyncio) that a static scanner can't see -- without
+    # this, the packaged app 500s on its first request with
+    # "ModuleNotFoundError: No module named 'anyio._backends'". "sniffio" is
+    # anyio's own small dependency, included for the same reason.
+    "packages": ["engine", "ui", "fastapi", "starlette", "uvicorn", "pydantic", "webview", "anyio", "sniffio"],
+    "includes": ["sqlite3", "email.mime.multipart", "anyio._backends._asyncio"],
     "iconfile": str(ICON) if ICON.exists() else None,
     "plist": {
         "CFBundleName": "Forex Trading System",
