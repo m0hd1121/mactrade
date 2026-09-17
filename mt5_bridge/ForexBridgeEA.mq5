@@ -18,7 +18,12 @@
 #property strict
 
 #include <Trade/Trade.mqh>
-#include "Include/JsonBridge.mqh"
+// Angle-bracket form so this resolves against MQL5/Include/ (where
+// install_mt5_bridge.sh actually copies JsonBridge.mqh), the same way the
+// Trade.mqh include above it does -- NOT relative to this .mq5 file's own
+// folder (MQL5/Experts/), which the quoted "Include/JsonBridge.mqh" form
+// used to incorrectly assume.
+#include <JsonBridge.mqh>
 
 input string InpSymbols        = "EURUSD,GBPUSD,USDJPY,AUDUSD,USDCHF,USDCAD,NZDUSD,XAUUSD";
 input int    InpMagicNumber    = 990321;
